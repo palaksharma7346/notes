@@ -21,3 +21,4 @@ ios/Flutter/Flutter.podspec
 *.iws
 .idea/
 .vscode/
+.env
