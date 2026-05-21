@@ -7,9 +7,8 @@ class AppConstants {
   static const maxGeminiInputCharacters = 25000;
   static const geminiApiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta';
   static const geminiTextModels = [
-    'gemini-2.5-flash',
-    'gemini-2.5-flash-lite',
     'gemini-2.0-flash',
+    'gemini-2.0-flash-lite',
   ];
 }
 

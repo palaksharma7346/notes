@@ -68,8 +68,11 @@ class GeminiService {
       lastStatusCode = response.statusCode;
       lastMessage = _errorMessage(response.body);
 
+      final lowerMessage = lastMessage.toLowerCase();
       final shouldTryNextModel =
-          response.statusCode == 404 && lastMessage.toLowerCase().contains('models/');
+          (response.statusCode == 404 && lowerMessage.contains('models/')) ||
+              (response.statusCode == 403 && lowerMessage.contains('model')) ||
+              response.statusCode == 429;
       if (!shouldTryNextModel) {
         throw Exception(_friendlyGeminiError(response.statusCode, lastMessage));
       }
@@ -297,7 +300,12 @@ $notesText
       return 'The Gemini API key was rejected. Check the GEMINI_API_KEY value in the .env file.';
     }
     if (statusCode == 403) {
-      return 'This Gemini API key does not have permission to use the selected model.';
+      return 'This Gemini API key could not use any of the configured free Gemini Flash models. '
+          'Check that the Generative Language API is enabled for this Google Cloud project, '
+          'or set GEMINI_MODEL in .env to a model available to your key.';
+    }
+    if (statusCode == 429) {
+      return 'The free Gemini API quota is temporarily exhausted. Try again later, or create a new free API key in Google AI Studio.';
     }
     return 'Gemini API error: $statusCode $message';
   }
