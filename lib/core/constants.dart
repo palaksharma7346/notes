@@ -5,8 +5,12 @@ class AppConstants {
   static const tagline = 'Study Smarter with AI';
   static const sessionsBox = 'sessions';
   static const maxGeminiInputCharacters = 25000;
-  static const geminiModelUrl =
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+  static const geminiApiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta';
+  static const geminiTextModels = [
+    'gemini-2.5-flash',
+    'gemini-2.5-flash-lite',
+    'gemini-2.0-flash',
+  ];
 }
 
 class AppColors {

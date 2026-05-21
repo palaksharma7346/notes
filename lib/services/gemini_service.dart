@@ -8,7 +8,6 @@ import '../core/constants.dart';
 
 class GeminiService {
   static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
-  static const String _baseUrl = AppConstants.geminiModelUrl;
 
   static Future<String> _callGemini({
     required String prompt,
@@ -19,7 +18,6 @@ class GeminiService {
       throw Exception('Add your Gemini API key to the .env file before generating study material.');
     }
 
-    final url = Uri.parse('$_baseUrl?key=$_apiKey');
     final parts = <Map<String, dynamic>>[];
     final images = [
       if (imageFile != null) imageFile,
@@ -49,22 +47,35 @@ class GeminiService {
       }
     });
 
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: body,
-    );
+    var lastStatusCode = 0;
+    var lastMessage = 'No Gemini model was attempted.';
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return data['candidates'][0]['content']['parts'][0]['text'] as String;
+    for (final model in _modelCandidates) {
+      final url = Uri.parse(
+        '${AppConstants.geminiApiBaseUrl}/models/$model:generateContent?key=$_apiKey',
+      );
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: body,
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        return data['candidates'][0]['content']['parts'][0]['text'] as String;
+      }
+
+      lastStatusCode = response.statusCode;
+      lastMessage = _errorMessage(response.body);
+
+      final shouldTryNextModel =
+          response.statusCode == 404 && lastMessage.toLowerCase().contains('models/');
+      if (!shouldTryNextModel) {
+        throw Exception(_friendlyGeminiError(response.statusCode, lastMessage));
+      }
     }
 
-    final decoded = jsonDecode(response.body);
-    final message = decoded is Map && decoded['error'] is Map
-        ? decoded['error']['message']
-        : response.body;
-    throw Exception('Gemini API error: ${response.statusCode} $message');
+    throw Exception(_friendlyGeminiError(lastStatusCode, lastMessage));
   }
 
   static String prepareNotesText(String notesText, {bool hasImages = false}) {
@@ -251,6 +262,44 @@ $notesText
     if (lower.endsWith('.webp')) return 'image/webp';
     if (lower.endsWith('.heic') || lower.endsWith('.heif')) return 'image/heic';
     return 'image/jpeg';
+  }
+
+  static List<String> get _modelCandidates {
+    final configuredModel = dotenv.env['GEMINI_MODEL']?.trim();
+    if (configuredModel != null && configuredModel.isNotEmpty) {
+      return [
+        configuredModel,
+        ...AppConstants.geminiTextModels.where((model) => model != configuredModel),
+      ];
+    }
+    return AppConstants.geminiTextModels;
+  }
+
+  static String _errorMessage(String responseBody) {
+    try {
+      final decoded = jsonDecode(responseBody);
+      if (decoded is Map && decoded['error'] is Map) {
+        return decoded['error']['message']?.toString() ?? responseBody;
+      }
+    } catch (_) {
+      return responseBody;
+    }
+    return responseBody;
+  }
+
+  static String _friendlyGeminiError(int statusCode, String message) {
+    if (statusCode == 404 && message.toLowerCase().contains('models/')) {
+      return 'Gemini could not find an available Flash model for this API key. '
+          'Open Google AI Studio, check which Gemini models are enabled for the key, '
+          'then set GEMINI_MODEL in the .env file if needed.';
+    }
+    if (statusCode == 400 && message.toLowerCase().contains('api key')) {
+      return 'The Gemini API key was rejected. Check the GEMINI_API_KEY value in the .env file.';
+    }
+    if (statusCode == 403) {
+      return 'This Gemini API key does not have permission to use the selected model.';
+    }
+    return 'Gemini API error: $statusCode $message';
   }
 
   static List<Map<String, dynamic>> _decodeJsonList(String raw) {
