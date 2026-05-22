@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/session.dart';
-import '../../services/gemini_service.dart';
+import '../../services/huggingface_service.dart';
 import '../home/home_provider.dart';
 
 StudySession getSessionOrThrow(Ref ref, String sessionId) {
@@ -15,7 +15,7 @@ StudySession getSessionOrThrow(Ref ref, String sessionId) {
 }
 
 String notesForSession(StudySession session) {
-  return GeminiService.prepareNotesText(
+  return HuggingFaceService.prepareNotesText(
     session.extractedText,
     hasImages: session.imageFiles.isNotEmpty,
   );

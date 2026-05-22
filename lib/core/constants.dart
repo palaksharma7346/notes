@@ -4,12 +4,10 @@ class AppConstants {
   static const appName = 'NoteGenius';
   static const tagline = 'Study Smarter with AI';
   static const sessionsBox = 'sessions';
-  static const maxGeminiInputCharacters = 25000;
-  static const geminiApiBaseUrl = 'https://generativelanguage.googleapis.com/v1beta';
-  static const geminiTextModels = [
-    'gemini-2.0-flash',
-    'gemini-2.0-flash-lite',
-  ];
+  static const maxAiInputCharacters = 25000;
+  static const huggingFaceApiBaseUrl = 'https://router.huggingface.co/v1';
+  static const huggingFaceDefaultTextModel = 'openai/gpt-oss-120b:fastest';
+  static const huggingFaceDefaultVisionModel = 'zai-org/GLM-4.5V:fastest';
 }
 
 class AppColors {

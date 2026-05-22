@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants.dart';
 import '../../models/flashcard.dart';
-import '../../services/gemini_service.dart';
+import '../../services/huggingface_service.dart';
 import '../common/feature_provider_utils.dart';
 import '../home/home_provider.dart';
 
@@ -12,7 +12,8 @@ final flashcardsProvider = StateNotifierProvider.family<FlashcardsNotifier,
 });
 
 class FlashcardsNotifier extends StateNotifier<AsyncValue<List<Flashcard>>> {
-  FlashcardsNotifier(this.ref, this.sessionId) : super(const AsyncValue.loading()) {
+  FlashcardsNotifier(this.ref, this.sessionId)
+      : super(const AsyncValue.loading()) {
     load();
   }
 
@@ -21,7 +22,8 @@ class FlashcardsNotifier extends StateNotifier<AsyncValue<List<Flashcard>>> {
 
   Future<void> load({bool force = false}) async {
     final session = getSessionOrThrow(ref, sessionId);
-    final cached = mapListFromDynamic(session.generatedContent[FeatureKeys.flashcards]);
+    final cached =
+        mapListFromDynamic(session.generatedContent[FeatureKeys.flashcards]);
     if (!force && cached.isNotEmpty) {
       state = AsyncValue.data(
         cached.map((json) => Flashcard.fromJson(json)).toList(growable: false),
@@ -31,7 +33,7 @@ class FlashcardsNotifier extends StateNotifier<AsyncValue<List<Flashcard>>> {
 
     state = const AsyncValue.loading();
     try {
-      final raw = await GeminiService.generateFlashcards(
+      final raw = await HuggingFaceService.generateFlashcards(
         notesForSession(session),
         images: imagesForSession(session),
       );

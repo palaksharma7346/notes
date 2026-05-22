@@ -1,14 +1,16 @@
 # NoteGenius
 
-NoteGenius is an AI-powered Flutter study assistant for Android and iOS. Students can upload PDFs or note images, then generate summaries, quizzes, flashcards, exam questions, topic-wise notes, and simplified concept explanations with Google Gemini 1.5 Flash.
+NoteGenius is an AI-powered Flutter study assistant for Android and iOS. Students can upload PDFs or note images, then generate summaries, quizzes, flashcards, exam questions, topic-wise notes, and simplified concept explanations with Hugging Face Inference Providers.
 
 ## Setup
 
 1. Install Flutter and Android tooling.
-2. Put your Gemini API key in `.env`:
+2. Put your Hugging Face token in `.env`:
 
 ```env
-GEMINI_API_KEY=your_real_key_here
+HUGGINGFACE_API_KEY=hf_your_token_here
+HUGGINGFACE_MODEL=openai/gpt-oss-120b:fastest
+HUGGINGFACE_VISION_MODEL=zai-org/GLM-4.5V:fastest
 ```
 
 3. Run:

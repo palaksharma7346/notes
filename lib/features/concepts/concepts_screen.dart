@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/constants.dart';
 import '../../core/widgets.dart';
 import '../../models/concept.dart';
 import 'concepts_provider.dart';
@@ -30,10 +29,13 @@ class _ConceptsScreenState extends ConsumerState<ConceptsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Explain Concepts')),
       body: conceptsState.when(
-        loading: () => const FeatureLoading(message: 'Simplifying tricky concepts...'),
+        loading: () =>
+            const FeatureLoading(message: 'Simplifying tricky concepts...'),
         error: (error, _) => FeatureError(
           message: error.toString(),
-          onRetry: () => ref.read(conceptsProvider(widget.sessionId).notifier).load(force: true),
+          onRetry: () => ref
+              .read(conceptsProvider(widget.sessionId).notifier)
+              .load(force: true),
         ),
         data: (concepts) {
           final filtered = _filtered(concepts);

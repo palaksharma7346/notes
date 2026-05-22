@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants.dart';
 import '../../models/exam_question.dart';
-import '../../services/gemini_service.dart';
+import '../../services/huggingface_service.dart';
 import '../common/feature_provider_utils.dart';
 import '../home/home_provider.dart';
 
@@ -12,7 +12,8 @@ final questionsProvider = StateNotifierProvider.family<QuestionsNotifier,
 });
 
 class QuestionsNotifier extends StateNotifier<AsyncValue<List<ExamQuestion>>> {
-  QuestionsNotifier(this.ref, this.sessionId) : super(const AsyncValue.loading()) {
+  QuestionsNotifier(this.ref, this.sessionId)
+      : super(const AsyncValue.loading()) {
     load();
   }
 
@@ -21,17 +22,20 @@ class QuestionsNotifier extends StateNotifier<AsyncValue<List<ExamQuestion>>> {
 
   Future<void> load({bool force = false}) async {
     final session = getSessionOrThrow(ref, sessionId);
-    final cached = mapListFromDynamic(session.generatedContent[FeatureKeys.questions]);
+    final cached =
+        mapListFromDynamic(session.generatedContent[FeatureKeys.questions]);
     if (!force && cached.isNotEmpty) {
       state = AsyncValue.data(
-        cached.map((json) => ExamQuestion.fromJson(json)).toList(growable: false),
+        cached
+            .map((json) => ExamQuestion.fromJson(json))
+            .toList(growable: false),
       );
       return;
     }
 
     state = const AsyncValue.loading();
     try {
-      final raw = await GeminiService.generateExamQuestions(
+      final raw = await HuggingFaceService.generateExamQuestions(
         notesForSession(session),
         images: imagesForSession(session),
       );

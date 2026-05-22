@@ -30,16 +30,21 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         loading: () => const FeatureLoading(message: 'Building your quiz...'),
         error: (error, _) => FeatureError(
           message: error.toString(),
-          onRetry: () => ref.read(quizProvider(widget.sessionId).notifier).load(force: true),
+          onRetry: () => ref
+              .read(quizProvider(widget.sessionId).notifier)
+              .load(force: true),
         ),
         data: (questions) {
           if (questions.isEmpty) {
             return FeatureError(
-              message: 'Gemini did not return quiz questions for this session.',
-              onRetry: () => ref.read(quizProvider(widget.sessionId).notifier).load(force: true),
+              message:
+                  'Hugging Face did not return quiz questions for this session.',
+              onRetry: () => ref
+                  .read(quizProvider(widget.sessionId).notifier)
+                  .load(force: true),
             );
           }
-          final safeIndex = _index.clamp(0, questions.length - 1) as int;
+          final safeIndex = _index.clamp(0, questions.length - 1);
           final question = questions[safeIndex];
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
@@ -54,7 +59,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                     ),
                   ),
                   const Spacer(),
-                  Text('Score $_score', style: const TextStyle(color: AppColors.muted)),
+                  Text('Score $_score',
+                      style: const TextStyle(color: AppColors.muted)),
                 ],
               ),
               const SizedBox(height: 10),
@@ -101,7 +107,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 ),
                 const SizedBox(height: 16),
                 PrimaryButton(
-                  label: safeIndex == questions.length - 1 ? 'See Final Score' : 'Next Question →',
+                  label: safeIndex == questions.length - 1
+                      ? 'See Final Score'
+                      : 'Next Question →',
                   icon: Icons.arrow_forward_rounded,
                   onPressed: () => _next(questions.length),
                 ),
@@ -123,7 +131,8 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
 
   void _next(int total) {
     if (_index == total - 1) {
-      context.pushReplacement('/quiz/${widget.sessionId}/result?score=$_score&total=$total');
+      context.pushReplacement(
+          '/quiz/${widget.sessionId}/result?score=$_score&total=$total');
       return;
     }
     setState(() {
@@ -173,24 +182,29 @@ class _OptionButton extends StatelessWidget {
           color: color,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: color == Colors.white ? AppColors.accent.withOpacity(0.25) : color,
+            color: color == Colors.white
+                ? AppColors.accent.withOpacity(0.25)
+                : color,
           ),
         ),
         child: Row(
           children: [
             CircleAvatar(
               radius: 17,
-              backgroundColor: foreground.withOpacity(color == Colors.white ? 0.08 : 0.18),
+              backgroundColor:
+                  foreground.withOpacity(color == Colors.white ? 0.08 : 0.18),
               child: Text(
                 label,
-                style: TextStyle(color: foreground, fontWeight: FontWeight.w900),
+                style:
+                    TextStyle(color: foreground, fontWeight: FontWeight.w900),
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 option,
-                style: TextStyle(color: foreground, fontWeight: FontWeight.w700),
+                style:
+                    TextStyle(color: foreground, fontWeight: FontWeight.w700),
               ),
             ),
             if (wasAnswered && (isCorrect || isSelected))

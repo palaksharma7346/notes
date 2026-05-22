@@ -8,7 +8,7 @@ import 'package:lottie/lottie.dart';
 import '../../core/constants.dart';
 import '../../core/widgets.dart';
 import '../../models/session.dart';
-import '../../services/gemini_service.dart';
+import '../../services/huggingface_service.dart';
 import '../../services/pdf_service.dart';
 import '../home/home_provider.dart';
 
@@ -43,7 +43,8 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
   Future<void> _process() async {
     if (_isProcessing) return;
     if (widget.files.isEmpty) {
-      setState(() => _error = 'No files were selected. Go back and add at least one note file.');
+      setState(() => _error =
+          'No files were selected. Go back and add at least one note file.');
       return;
     }
 
@@ -59,7 +60,8 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
       final textBuffer = StringBuffer();
 
       await _advance(1, 0.42);
-      for (final noteFile in widget.files.where((file) => file.type == NoteFileType.pdf)) {
+      for (final noteFile
+          in widget.files.where((file) => file.type == NoteFileType.pdf)) {
         final text = await PdfService.extractText(File(noteFile.path));
         if (text.trim().isNotEmpty) {
           textBuffer
@@ -70,8 +72,9 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
       }
 
       await _advance(2, 0.72);
-      final hasImages = widget.files.any((file) => file.type == NoteFileType.image);
-      final preparedText = GeminiService.prepareNotesText(
+      final hasImages =
+          widget.files.any((file) => file.type == NoteFileType.image);
+      final preparedText = HuggingFaceService.prepareNotesText(
         textBuffer.toString(),
         hasImages: hasImages,
       );
@@ -122,7 +125,9 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: _error == null ? _ProcessingBody() : _ErrorBody(error: _error!, onRetry: _process),
+        child: _error == null
+            ? _ProcessingBody()
+            : _ErrorBody(error: _error!, onRetry: _process),
       ),
     );
   }

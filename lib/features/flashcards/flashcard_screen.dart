@@ -29,17 +29,20 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
         loading: () => const FeatureLoading(message: 'Creating flashcards...'),
         error: (error, _) => FeatureError(
           message: error.toString(),
-          onRetry: () => ref.read(flashcardsProvider(widget.sessionId).notifier).load(force: true),
+          onRetry: () => ref
+              .read(flashcardsProvider(widget.sessionId).notifier)
+              .load(force: true),
         ),
         data: (cards) {
           if (cards.isEmpty) {
             return FeatureError(
               message: 'No flashcards were returned for this session.',
-              onRetry: () =>
-                  ref.read(flashcardsProvider(widget.sessionId).notifier).load(force: true),
+              onRetry: () => ref
+                  .read(flashcardsProvider(widget.sessionId).notifier)
+                  .load(force: true),
             );
           }
-          final safeIndex = _index.clamp(0, cards.length - 1) as int;
+          final safeIndex = _index.clamp(0, cards.length - 1);
           final card = cards[safeIndex];
           return ListView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
@@ -54,7 +57,8 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
                     ),
                   ),
                   const Spacer(),
-                  Text('${_known.length} known', style: const TextStyle(color: AppColors.muted)),
+                  Text('${_known.length} known',
+                      style: const TextStyle(color: AppColors.muted)),
                 ],
               ),
               const SizedBox(height: 10),
@@ -77,7 +81,8 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
                   duration: const Duration(milliseconds: 360),
                   transitionBuilder: (child, animation) {
                     return ScaleTransition(
-                      scale: Tween<double>(begin: 0.96, end: 1).animate(animation),
+                      scale:
+                          Tween<double>(begin: 0.96, end: 1).animate(animation),
                       child: FadeTransition(opacity: animation, child: child),
                     );
                   },
@@ -129,7 +134,8 @@ class _FlashcardScreenState extends ConsumerState<FlashcardScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: safeIndex == cards.length - 1 ? null : () => _move(1),
+                      onPressed:
+                          safeIndex == cards.length - 1 ? null : () => _move(1),
                       icon: const Icon(Icons.arrow_forward_rounded),
                       label: const Text('Next'),
                     ),
